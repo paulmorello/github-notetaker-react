@@ -1,68 +1,69 @@
-var React = require('react');
-var Router = require('react-router');
-import Repos from './github/Repos';
-import UserProfile from './github/UserProfile';
-import Notes from './notes/Notes';
-var ReactFireMixin = require('reactfire');
-var Firebase = require('firebase');
-var helpers = require('../utils/helpers');
+import React from 'react'
+import Repos from './Github/Repos';
+import UserProfile from './Github/UserProfile';
+import Notes from './Notes/Notes';
+import getGithubInfo from '../utils/helpers';
+import Rebase from 're-base';
 
-var Profile = React.createClass({
-  mixins: [ReactFireMixin],
-  getInitialState() {
-    return {
-      notes: [1,2,3],
+const base = Rebase.createClass('https://github-notetaker-react-57636.firebaseio.com/')
+
+class Profile extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      notes: [],
       bio: {},
-      repos: ['a', 'b', 'c'],
+      repos: []
     }
-  },
-
-  componentDidMount: function() {
-    this.ref = new Firebase("https://github-notetaker-react-57636.firebaseio.com/")
-    this.init(this.props.params.username);
-  },
-  componentWillReceiveProps: function(nextProps) {
-    this.unbind('notes');
+  }
+  componentDidMount(){
+    this.init(this.props.params.username)
+  }
+  componentWillReceiveProps(nextProps){
+    base.removeBinding(this.ref);
     this.init(nextProps.params.username);
-  },
+  }
+  componentWillUnmount(){
+    base.removeBinding(this.ref);
+  }
+  init(username){
+    this.ref = base.bindToState(username, {
+      context: this,
+      asArray: true,
+      state: 'notes'
+    });
 
-  init: function(username) {
-    var childRef = this.ref.child(username);
-    this.bindAsArray(childRef, 'notes');
-
-    helpers.getGithubInfo(username)
-      .then(function(data) {
+    getGithubInfo(username)
+      .then(function(data){
         this.setState({
           bio: data.bio,
           repos: data.repos
         })
       }.bind(this))
-  },
-
-  componentWillUnmount: function() {
-    this.unbind('notes');
-  },
-
-  handleAddNote: function(newNote) {
-    // update firebase with new note
-    this.ref.child(this.props.params.username).child(this.state.notes.length).set(newNote)
-  },
-
-  render: function() {
+  }
+  handleAddNote(newNote){
+    base.post(this.props.params.username, {
+      data: this.state.notes.concat([newNote])
+    })
+  }
+  render(){
     return (
       <div className="row">
         <div className="col-md-4">
-          <UserProfile username={this.props.params.username} bio={this.state.bio}/>
+          <UserProfile username={this.props.params.username} bio={this.state.bio} />
         </div>
         <div className="col-md-4">
-          <Repos username={this.props.params.username} repos={this.state.repos} />
+          <Repos username={this.props.params.username} repos={this.state.repos}/>
         </div>
         <div className="col-md-4">
-          <Notes username={this.props.params.username} notes={this.state.notes} addNote={this.handleAddNote} />
+          <Notes
+            username={this.props.params.username}
+            notes={this.state.notes}
+            addNote={(newNote) => this.handleAddNote(newNote)} />
         </div>
       </div>
     )
   }
-})
+}
 
-module.exports = Profile;
+export default Profile
