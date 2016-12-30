@@ -2,7 +2,7 @@ var React = require('react');
 var Router = require('react-router');
 var Repos = require('./github/Repos');
 var UserProfile = require('./github/UserProfile');
-var Notes = require('./notes/Notes');
+import Notes from './notes/Notes';
 var ReactFireMixin = require('reactfire');
 var Firebase = require('firebase');
 var helpers = require('../utils/helpers');

@@ -5,8 +5,4 @@ understanding of webpack. The app simply searches for a user a displays
 information from their Github accounts.
 
 ** Technologies Used
-*** Node.js
-*** React Router
-*** JavaScript
-*** webpack
-*** Bootstrap
+ This project utilises React.js, Node.js, React Router, JavaScript, ES6, webpack, Bootstrap, Firebase, Axios, Github API
