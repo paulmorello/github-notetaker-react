@@ -1,13 +1,17 @@
 var React = require('react');
 
 var AddNote = React.createClass({
+  // validating property types to ensure the values being past through
+  // are correct
   propTypes: {
     username: React.PropTypes.string.isRequired,
     addNote: React.PropTypes.func.isRequired
   },
+  // used to carry the value of the input
   setRef: function(ref){
     this.note = ref;
   },
+  // function to trigger after input has been submitted
   handleSubmit: function() {
     var newNote = this.note.value;
     this.note.value = '';
